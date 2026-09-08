@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Pago Exitoso! – LuniBakery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--pink:#f4a7b9;--pink-dark:#e8809a;--pink-light:#fce4ec;--cream:#fdf8f3;--dark:#1a1015;--text:#3d2535;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .card{background:#fff;border-radius:28px;padding:52px 40px;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 48px rgba(180,80,110,0.12);}
+  .icon{font-size:72px;margin-bottom:24px;animation:pop .5s cubic-bezier(.175,.885,.32,1.275);}
+  @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+  h1{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:12px;}
+  p{font-size:15px;line-height:1.7;color:#7a5a68;margin-bottom:8px;}
+  .detail-box{background:var(--pink-light);border-radius:16px;padding:20px;margin:24px 0;text-align:left;font-size:14px;}
+  .detail-box strong{display:block;color:var(--pink-dark);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--pink);color:var(--dark);font-weight:700;font-size:15px;padding:14px 32px;border-radius:50px;text-decoration:none;margin-top:8px;transition:all .2s;}
+  .btn:hover{background:var(--pink-dark);transform:translateY(-2px);}
+  .wa-btn{background:#25D366;color:#fff;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--pink-dark);margin-bottom:32px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">LuniBakery</div>
+  <div class="icon">🎉</div>
+  <h1>¡Pago recibido!</h1>
+  <p>Tu pedido ha sido confirmado. Nos pondremos en contacto contigo para coordinar los detalles de entrega.</p>
+  <div class="detail-box">
+    <strong>¿Qué sigue?</strong>
+    <p>📩 Recibirás un email de confirmación de Mercado Pago.</p>
+    <p style="margin-top:8px">💬 Te contactaremos por WhatsApp para coordinar fecha y hora exacta.</p>
+    <p style="margin-top:8px">⏰ Tiempo mínimo de preparación: 24 a 72 horas según el producto.</p>
+  </div>
+  <a class="btn wa-btn" href="https://wa.me/56952393294?text=Hola%20LuniBakery!%20Acabo%20de%20pagar%20mi%20pedido%20y%20quiero%20coordinar%20la%20entrega%20%F0%9F%8E%82" target="_blank">💬 Coordinar entrega por WhatsApp</a><br>
+  <a class="btn" href="/index.html" style="background:var(--pink-light);color:var(--dark);margin-top:10px;">← Volver al inicio</a>
+</div>
+</body>
+</html>
