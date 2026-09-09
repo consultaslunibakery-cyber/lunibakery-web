@@ -71,7 +71,7 @@ export async function onRequestPost(context) {
         metodo_pago: "Transferencia",
         estado: "Esperando comprobante",
       };
-      await fetch(new URL("/api/save-order", request.url), {
+      const saveRes = await fetch(new URL("/api/save-order", request.url), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,6 +79,10 @@ export async function onRequestPost(context) {
         },
         body: JSON.stringify(order),
       });
+      if (!saveRes.ok) {
+        const saveErrBody = await saveRes.text();
+        console.error("save-order respondió con error:", saveRes.status, saveErrBody);
+      }
     } catch (saveErr) {
       console.error("Error guardando pedido:", saveErr);
     }
