@@ -135,12 +135,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "¿Con cuánta anticipación debo realizar mi pedido?", "acceptedAnswer": {"@type": "Answer", "text": "Para tortas, idealmente 72 horas. Para cupcakes, cakepops, tartas y galletas, 24 horas. Para diseños personalizados, mínimo 3 días."}},
+    {"@type": "Question", "name": "¿Con cuánta anticipación debo realizar mi pedido?", "acceptedAnswer": {"@type": "Answer", "text": "Un mínimo de 72 horas de anticipación para todos los productos."}},
     {"@type": "Question", "name": "¿Hacen diseños personalizados o temáticos?", "acceptedAnswer": {"@type": "Answer", "text": "¡Sí! Podemos adaptar tus ideas a tortas, cupcakes y más. Escríbenos por WhatsApp compartiendo tu idea o imagen de referencia."}},
     {"@type": "Question", "name": "¿Puedo modificar o cancelar un pedido ya pagado?", "acceptedAnswer": {"@type": "Answer", "text": "Las modificaciones de sabor se aceptan hasta 2 días antes de la entrega. Las cancelaciones totales solo se reembolsan en un 50% con mínimo 2 días de anticipación."}},
     {"@type": "Question", "name": "¿Tienen un lugar físico para retirar?", "acceptedAnswer": {"@type": "Answer", "text": "Sí, puedes retirar gratis en nuestro taller: Diagonal José María Caro 2672, Recoleta. Coordinaremos el bloque horario por WhatsApp."}},
     {"@type": "Question", "name": "¿Hacen despacho a domicilio?", "acceptedAnswer": {"@type": "Answer", "text": "El pedido se retira en tienda. Si necesitas despacho a domicilio, lo coordinamos directamente contigo por WhatsApp."}},
-    {"@type": "Question", "name": "¿Con cuánta anticipación debo hacer mi pedido?", "acceptedAnswer": {"@type": "Answer", "text": "Todos los pedidos requieren un mínimo de 4 días de anticipación."}},
     {"@type": "Question", "name": "¿Cómo conservo mis productos?", "acceptedAnswer": {"@type": "Answer", "text": "Las tortas y productos con cremas deben mantenerse en frío. Los cupcakes o galletería se conservan mejor en lugar fresco y seco, lejos del sol."}},
     {"@type": "Question", "name": "¿Ofrecen opciones para alérgenos?", "acceptedAnswer": {"@type": "Answer", "text": "No contamos con línea certificada libre de alérgenos; los productos pueden contener trazas de gluten, lácteos o frutos secos. Sí contamos con línea vegana y apta para diabéticos."}},
     {"@type": "Question", "name": "¿Cuáles son los medios de pago?", "acceptedAnswer": {"@type": "Answer", "text": "Puedes pagar de forma 100% segura con tarjetas de débito/crédito vía Mercado Pago, o mediante transferencia bancaria directa (enviando el comprobante)."}}
@@ -751,7 +750,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <button class="cat-btn" onclick="filterCat('alfajores', this)">Alfajores y Galletas</button>
   </div>
 </nav>
-<div class="lead-time"><span>⏰</span> Tiempo mínimo: <strong id="leadTimeText">72 horas de anticipación</strong></div>
 
 <!-- BUSCADOR -->
 <div class="search-bar-wrap">
@@ -914,7 +912,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="faq-group">
     <div class="faq-group-title" onclick="toggleFaq(this)">Pedidos y Personalización <span class="chevron">∨</span></div>
     <div class="faq-items open">
-      <div class="faq-item"><p class="faq-q">¿Con cuánta anticipación debo realizar mi pedido?</p><p class="faq-a">Para tortas, idealmente 72 horas. Para cupcakes, cakepops, tartas y galletas, 24 horas. Para diseños personalizados, mínimo 3 días.</p></div>
+      <div class="faq-item"><p class="faq-q">¿Con cuánta anticipación debo realizar mi pedido?</p><p class="faq-a">Un mínimo de 72 horas de anticipación para todos los productos.</p></div>
       <div class="faq-item"><p class="faq-q">¿Hacen diseños personalizados o temáticos?</p><p class="faq-a">¡Sí! Podemos adaptar tus ideas a tortas, cupcakes y más. Escríbenos por WhatsApp compartiendo tu idea o imagen de referencia.</p></div>
       <div class="faq-item"><p class="faq-q">¿Puedo modificar o cancelar un pedido ya pagado?</p><p class="faq-a">Las modificaciones de sabor se aceptan hasta 2 días antes de la entrega. Las cancelaciones totales solo se reembolsan en un 50% con mínimo 2 días de anticipación.</p></div>
     </div>
@@ -1172,7 +1170,6 @@ function filterCat(cat, btn) {
   const sec = document.getElementById('cat-' + cat);
   sec.style.display = '';
   btn.classList.add('active');
-  document.getElementById('leadTimeText').textContent = LEAD_TIMES[cat] || '72 horas';
   renderGrid(cat);
   sec.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
