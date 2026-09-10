@@ -788,7 +788,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="size-label" id="sizeLabel">Tamaño</p>
     <div class="size-options" id="sizeOptions"></div>
     <div class="custom-section" id="customSection" style="display:none">
-      <div class="custom-banner">🎁 ¡Obtén 20% de descuento al seleccionar 2 o más personalizaciones!</div>
+      <div class="custom-banner">🎁 ¡Obtén 10% de descuento al seleccionar 2 o más personalizaciones!</div>
       <div id="customOptions"></div>
       <div style="font-size:13px;color:var(--text-light);margin-top:4px">Total personalización: <strong id="customTotal">$0</strong></div>
       <label style="display:block;font-size:13px;font-weight:600;color:var(--text-light);margin-top:14px;margin-bottom:6px">Cuéntanos qué buscas (colores, tema, texto, etc.) — opcional</label>
@@ -1270,7 +1270,7 @@ function updateModalTotal() {
   if (!currentProduct) return;
   const basePrice = currentProduct.sizes[selectedSizeIdx].price;
   let customPrice = selectedCustom.reduce((acc,i) => acc + customizationOptions[i].price, 0);
-  if (selectedCustom.length >= 2) customPrice = Math.round(customPrice * 0.8);
+  if (selectedCustom.length >= 2) customPrice = Math.round(customPrice * 0.9);
   document.getElementById('customTotal').textContent = fmt(customPrice);
   document.getElementById('modalTotal').textContent = fmt((basePrice + customPrice) * selectedQty);
 }
@@ -1290,7 +1290,7 @@ function addToCart() {
   const customNoteVal = (document.getElementById('customNoteInput')?.value || '').trim();
   const s = currentProduct.sizes[selectedSizeIdx];
   let customPrice = selectedCustom.reduce((acc,i) => acc + customizationOptions[i].price, 0);
-  if (selectedCustom.length >= 2) customPrice = Math.round(customPrice * 0.8);
+  if (selectedCustom.length >= 2) customPrice = Math.round(customPrice * 0.9);
   cart.push({ id: currentProduct.id + '_' + Date.now(), name: currentProduct.name, size: s.label, basePrice: s.price, customPrice, customNames: selectedCustom.map(i => customizationOptions[i].name), customNote: customNoteVal, qty: selectedQty, cat: getCatForProduct(currentProduct.id) || currentCat });
   updateCartUI(); closeModal(); showToast('✓ ' + currentProduct.name + ' agregado al carrito');
 }
