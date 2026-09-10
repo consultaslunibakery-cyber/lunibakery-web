@@ -37,6 +37,18 @@ export async function onRequestPost(context) {
 
     const fmt = (n) => `$${Number(n).toLocaleString("es-CL")}`;
 
+    // Actualizar el estado del pedido a Confirmado en el panel de administración
+    try {
+      const existingRaw = await env.ORDERS_KV.get(`order:${orderId}`);
+      if (existingRaw) {
+        const existingOrder = JSON.parse(existingRaw);
+        existingOrder.estado = "Confirmado";
+        await env.ORDERS_KV.put(`order:${orderId}`, JSON.stringify(existingOrder));
+      }
+    } catch (kvErr) {
+      console.error("Error actualizando estado del pedido:", kvErr);
+    }
+
     const emailHtml = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #f0dce5;">
         <div style="background:linear-gradient(135deg,#e8809a,#c96a82);padding:28px 32px;text-align:center;">

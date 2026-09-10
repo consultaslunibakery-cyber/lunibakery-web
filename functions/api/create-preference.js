@@ -96,14 +96,7 @@ export async function onRequestPost(context) {
         preference_id: mpData.id,
       };
 
-      await fetch(`${siteUrl}/api/save-order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-internal-secret": env.ADMIN_SECRET,
-        },
-        body: JSON.stringify(order),
-      });
+      await env.ORDERS_KV.put(`order:${order.id}`, JSON.stringify(order));
     } catch (saveErr) {
       console.error("Error guardando pedido:", saveErr);
     }
