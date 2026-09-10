@@ -791,6 +791,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="custom-banner">🎁 ¡Obtén 20% de descuento al seleccionar 2 o más personalizaciones!</div>
       <div id="customOptions"></div>
       <div style="font-size:13px;color:var(--text-light);margin-top:4px">Total personalización: <strong id="customTotal">$0</strong></div>
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--text-light);margin-top:14px;margin-bottom:6px">Cuéntanos qué buscas (colores, tema, texto, etc.) — opcional</label>
+      <textarea id="customNoteInput" rows="3" placeholder="Ej: Tema dinosaurios en tonos verdes, con el nombre 'Martina' en el centro..." style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;font-family:'DM Sans', sans-serif;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="background:#e8f5e9;border:1.5px solid #81c784;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px;color:#2e7d32;">
+        📸 Una vez realices tu compra, escríbenos por <a href="https://wa.me/56952393294" target="_blank" style="color:#2e7d32;font-weight:700;">WhatsApp</a> para enviarnos fotos de referencia y coordinar los detalles de tu personalización.
+      </div>
     </div>
     <div id="crossSell" style="display:none;margin:18px 0 4px;"></div>
     <div class="qty-row">
@@ -1178,6 +1183,8 @@ let currentProduct = null, selectedSizeIdx = 0, selectedQty = 1, selectedCustom 
 
 function openProduct(p) {
   currentProduct = p; selectedSizeIdx = 0; selectedQty = 1; selectedCustom = [];
+  const noteEl = document.getElementById('customNoteInput');
+  if (noteEl) noteEl.value = '';
   document.getElementById('modalTitle').textContent = p.name;
   const mImg = document.getElementById('modalImg');
   if (p.img) { mImg.src = p.img; mImg.alt = p.name; mImg.style.display = ''; } else { mImg.style.display = 'none'; }
@@ -1275,11 +1282,16 @@ function closeProductModal(e) { if (e.target === document.getElementById('produc
 let cart = [];
 let calYear, calMonth, selectedDate = null;
 
+function buildCustomNotesTxt() {
+  return cart.filter(i => i.customNote).map(i => `${i.name}: ${i.customNote}`).join(' | ');
+}
+
 function addToCart() {
+  const customNoteVal = (document.getElementById('customNoteInput')?.value || '').trim();
   const s = currentProduct.sizes[selectedSizeIdx];
   let customPrice = selectedCustom.reduce((acc,i) => acc + customizationOptions[i].price, 0);
   if (selectedCustom.length >= 2) customPrice = Math.round(customPrice * 0.8);
-  cart.push({ id: currentProduct.id + '_' + Date.now(), name: currentProduct.name, size: s.label, basePrice: s.price, customPrice, customNames: selectedCustom.map(i => customizationOptions[i].name), qty: selectedQty, cat: getCatForProduct(currentProduct.id) || currentCat });
+  cart.push({ id: currentProduct.id + '_' + Date.now(), name: currentProduct.name, size: s.label, basePrice: s.price, customPrice, customNames: selectedCustom.map(i => customizationOptions[i].name), customNote: customNoteVal, qty: selectedQty, cat: getCatForProduct(currentProduct.id) || currentCat });
   updateCartUI(); closeModal(); showToast('✓ ' + currentProduct.name + ' agregado al carrito');
 }
 
@@ -1402,6 +1414,7 @@ async function payMP() {
         orderNote: [
           'Retiro en tienda',
           selectedDate ? 'Fecha: ' + selectedDate.toLocaleDateString('es-CL') : '',
+          buildCustomNotesTxt() ? 'Personalización: ' + buildCustomNotesTxt() : '',
         ].filter(Boolean).join(' | '),
       }),
     });
@@ -1434,7 +1447,8 @@ function closeTransfer() { document.getElementById('transferOverlay').classList.
 function sendTransferWA() {
   const total = cart.reduce((a,i) => a + (i.basePrice + i.customPrice) * i.qty, 0);
   const addr = '. Retiro en tienda';
-  const entregaTxt = 'Retiro en tienda';
+  const customNotesTxt = buildCustomNotesTxt();
+  const entregaTxt = 'Retiro en tienda' + (customNotesTxt ? ' | Personalización: ' + customNotesTxt : '');
   const nombre = document.getElementById('custName').value;
   const email = document.getElementById('custEmail').value;
   const telefono = document.getElementById('custPhone').value;
