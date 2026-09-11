@@ -16,10 +16,16 @@
   p{font-size:15px;line-height:1.7;color:#7a5a68;margin-bottom:8px;}
   .detail-box{background:var(--pink-light);border-radius:16px;padding:20px;margin:24px 0;text-align:left;font-size:14px;}
   .detail-box strong{display:block;color:var(--pink-dark);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .order-box{background:#fff;border:1.5px solid var(--border,#f0dce5);border-radius:16px;padding:18px 20px;margin:20px 0;text-align:left;font-size:14px;}
+  .order-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0dce5;}
+  .order-row:last-child{border-bottom:none;}
+  .order-row span:first-child{color:#7a5a68;}
+  .order-row strong{text-align:right;}
   .btn{display:inline-flex;align-items:center;gap:8px;background:var(--pink);color:var(--dark);font-weight:700;font-size:15px;padding:14px 32px;border-radius:50px;text-decoration:none;margin-top:8px;transition:all .2s;}
   .btn:hover{background:var(--pink-dark);transform:translateY(-2px);}
   .wa-btn{background:#25D366;color:#fff;}
   .logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--pink-dark);margin-bottom:32px;}
+  #loadingMsg{font-size:13px;color:#a68a95;}
 </style>
 </head>
 <body>
@@ -28,14 +34,46 @@
   <div class="icon">🎉</div>
   <h1>¡Pago recibido!</h1>
   <p>Tu pedido ha sido confirmado. Nos pondremos en contacto contigo para coordinar los detalles de entrega.</p>
+
+  <div id="orderSummary"></div>
+
   <div class="detail-box">
     <strong>¿Qué sigue?</strong>
-    <p>📩 Recibirás un email de confirmación de Mercado Pago.</p>
+    <p>📩 Recibirás un email de confirmación con el detalle de tu pedido.</p>
     <p style="margin-top:8px">💬 Te contactaremos por WhatsApp para coordinar fecha y hora exacta.</p>
-    <p style="margin-top:8px">⏰ Tiempo mínimo de preparación: 24 a 72 horas según el producto.</p>
+    <p style="margin-top:8px">⏰ Tiempo mínimo de preparación: 72 horas.</p>
   </div>
-  <a class="btn wa-btn" href="https://wa.me/56952393294?text=Hola%20LuniBakery!%20Acabo%20de%20pagar%20mi%20pedido%20y%20quiero%20coordinar%20la%20entrega%20%F0%9F%8E%82" target="_blank">💬 Coordinar entrega por WhatsApp</a><br>
+  <a class="btn wa-btn" id="waLink" href="https://wa.me/56952393294?text=Hola%20LuniBakery!%20Acabo%20de%20pagar%20mi%20pedido%20y%20quiero%20coordinar%20la%20entrega%20%F0%9F%8E%82" target="_blank">💬 Coordinar entrega por WhatsApp</a><br>
   <a class="btn" href="/index.html" style="background:var(--pink-light);color:var(--dark);margin-top:10px;">← Volver al inicio</a>
 </div>
+
+<script>
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('external_reference');
+  const summaryEl = document.getElementById('orderSummary');
+  if (!orderId) return;
+
+  summaryEl.innerHTML = '<p id="loadingMsg">Cargando el detalle de tu pedido...</p>';
+  try {
+    const res = await fetch('/api/order-status?id=' + encodeURIComponent(orderId));
+    const data = await res.json();
+    if (!res.ok) { summaryEl.innerHTML = ''; return; }
+
+    summaryEl.innerHTML = `
+      <div class="order-box">
+        <div class="order-row"><span>N° de pedido</span><strong>${data.id}</strong></div>
+        <div class="order-row"><span>Productos</span><strong>${data.productos || '—'}</strong></div>
+        <div class="order-row"><span>Total</span><strong>${'$' + Number(data.total || 0).toLocaleString('es-CL')}</strong></div>
+      </div>`;
+
+    const waLink = document.getElementById('waLink');
+    const msg = encodeURIComponent(`Hola LuniBakery! Acabo de pagar mi pedido ${data.id} y quiero coordinar la entrega 🎂`);
+    waLink.href = `https://wa.me/56952393294?text=${msg}`;
+  } catch (err) {
+    summaryEl.innerHTML = '';
+  }
+})();
+</script>
 </body>
 </html>

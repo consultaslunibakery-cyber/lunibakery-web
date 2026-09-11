@@ -684,6 +684,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#historia">Nuestra Historia</a>
     <a href="#faq">FAQ</a>
     <a href="/blog/">Blog</a>
+    <a href="#" onclick="openOrderStatus();return false;">Mi Pedido</a>
     <a href="#productos" class="top-nav-cta">Hacer Pedido</a>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú">
@@ -697,6 +698,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#historia" onclick="closeMenu()">Nuestra Historia</a>
   <a href="#faq" onclick="closeMenu()">FAQ</a>
   <a href="/blog/" onclick="closeMenu()">Blog</a>
+  <a href="#" onclick="closeMenu();openOrderStatus();">📦 Mi Pedido</a>
   <a href="#productos" onclick="closeMenu()">🎂 Hacer Pedido</a>
 </div>
 
@@ -984,9 +986,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       💰 Monto a transferir: <strong id="tfTotal" style="font-size:16px;">$0</strong><br>
       📩 Una vez realizada la transferencia, envíanos el comprobante por WhatsApp para confirmar tu pedido.
     </div>
-    <button class="add-to-cart-btn" onclick="sendTransferWA()" style="background:#25D366;margin-bottom:10px;">
+    <button class="add-to-cart-btn" id="sendTransferBtn" onclick="sendTransferWA()" style="background:#25D366;margin-bottom:10px;">
       💬 Ya transferí — Enviar comprobante por WhatsApp
     </button>
+  </div>
+</div>
+
+<!-- MODAL: CONSULTAR PEDIDO -->
+<div class="overlay" id="orderStatusOverlay" onclick="if(event.target===this)closeOrderStatus()" style="z-index:5000;">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h2 class="modal-title">Consultar mi Pedido</h2>
+      <button class="close-btn" onclick="closeOrderStatus()">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--text-light);margin-bottom:14px;">Ingresa el número de pedido que recibiste por correo o WhatsApp (ej: LUNI-1234567890).</p>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <input id="orderStatusInput" type="text" placeholder="N° de pedido" style="flex:1;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;font-family:'DM Sans', sans-serif;outline:none;" onkeydown="if(event.key==='Enter')checkOrderStatus()">
+      <button class="discount-btn" onclick="checkOrderStatus()">Buscar</button>
+    </div>
+    <div id="orderStatusResult"></div>
   </div>
 </div>
 
@@ -1282,6 +1300,55 @@ function closeProductModal(e) { if (e.target === document.getElementById('produc
 let cart = [];
 let calYear, calMonth, selectedDate = null;
 
+function isoDate(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+const TORTA_CATS = ['tortas-trad', 'tortas-veg', 'sin-azucar'];
+function cartTortaQty() {
+  return cart.filter(i => TORTA_CATS.includes(i.cat)).reduce((a,i) => a + i.qty, 0);
+}
+
+function openOrderStatus() {
+  document.getElementById('orderStatusInput').value = '';
+  document.getElementById('orderStatusResult').innerHTML = '';
+  document.getElementById('orderStatusOverlay').classList.add('open');
+}
+function closeOrderStatus() { document.getElementById('orderStatusOverlay').classList.remove('open'); }
+
+const ORDER_STATUS_LABELS = {
+  'Pendiente': '🟠 Pendiente de pago',
+  'Esperando comprobante': '🟠 Esperando tu comprobante de transferencia',
+  'Confirmado': '🟢 Confirmado',
+  'Entregado': '✅ Entregado',
+  'Cancelado': '🔴 Cancelado',
+};
+
+async function checkOrderStatus() {
+  const id = document.getElementById('orderStatusInput').value.trim();
+  const resultEl = document.getElementById('orderStatusResult');
+  if (!id) { resultEl.innerHTML = '<p style="color:#c62828;font-size:13px;">Ingresa un número de pedido.</p>'; return; }
+  resultEl.innerHTML = '<p style="font-size:13px;color:var(--text-light);">Buscando...</p>';
+  try {
+    const res = await fetch('/api/order-status?id=' + encodeURIComponent(id));
+    const data = await res.json();
+    if (!res.ok) {
+      resultEl.innerHTML = `<p style="color:#c62828;font-size:13px;">${data.error || 'No encontramos ese pedido.'}</p>`;
+      return;
+    }
+    const estadoTxt = ORDER_STATUS_LABELS[data.estado] || data.estado;
+    resultEl.innerHTML = `
+      <div style="background:var(--pink-light);border-radius:16px;padding:18px;font-size:14px;">
+        <div style="margin-bottom:8px;"><strong>Estado:</strong> ${estadoTxt}</div>
+        <div style="margin-bottom:8px;"><strong>Productos:</strong> ${data.productos || '—'}</div>
+        <div style="margin-bottom:8px;"><strong>Total:</strong> ${fmt(data.total || 0)}</div>
+        <div><strong>Método de pago:</strong> ${data.metodo_pago || '—'}</div>
+      </div>`;
+  } catch (err) {
+    resultEl.innerHTML = '<p style="color:#c62828;font-size:13px;">Error al consultar. Intenta de nuevo.</p>';
+  }
+}
+
 function buildCustomNotesTxt() {
   return cart.filter(i => i.customNote).map(i => `${i.name}: ${i.customNote}`).join(' | ');
 }
@@ -1416,10 +1483,18 @@ async function payMP() {
           selectedDate ? 'Fecha: ' + selectedDate.toLocaleDateString('es-CL') : '',
           buildCustomNotesTxt() ? 'Personalización: ' + buildCustomNotesTxt() : '',
         ].filter(Boolean).join(' | '),
+        fechaISO: selectedDate ? isoDate(selectedDate) : '',
       }),
     });
 
     const data = await response.json();
+
+    if (response.status === 409) {
+      showToast(data.error || 'Ya no hay cupo de tortas para esa fecha.');
+      btn.textContent = 'Pagar con Mercado Pago';
+      btn.disabled = false;
+      return;
+    }
 
     if (!response.ok || !data.init_point) {
       throw new Error(data.error || 'Error al crear el pago');
@@ -1444,7 +1519,7 @@ function payTransfer() {
 
 function closeTransfer() { document.getElementById('transferOverlay').classList.remove('open'); }
 
-function sendTransferWA() {
+async function sendTransferWA() {
   const total = cart.reduce((a,i) => a + (i.basePrice + i.customPrice) * i.qty, 0);
   const addr = '. Retiro en tienda';
   const customNotesTxt = buildCustomNotesTxt();
@@ -1454,23 +1529,47 @@ function sendTransferWA() {
   const telefono = document.getElementById('custPhone').value;
   const productosTxt = cart.map(i=>`${i.name} (${i.size}) x${i.qty}`).join(', ');
   const fechaTxt = selectedDate ? selectedDate.toLocaleDateString('es-CL') : '—';
+  const fechaISO = selectedDate ? isoDate(selectedDate) : '';
 
-  // Avisar al mail de LuniBakery (no bloqueante: si falla, igual se abre WhatsApp)
-  fetch('/api/notify-transfer', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      nombre, email, telefono,
-      productos: productosTxt,
-      total, fecha: fechaTxt,
-      entrega: entregaTxt,
-    }),
-  }).catch(err => console.error('Error notificando transferencia:', err));
+  const btn = document.getElementById('sendTransferBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Procesando...';
+
+  try {
+    const res = await fetch('/api/notify-transfer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre, email, telefono,
+        productos: productosTxt,
+        total, fecha: fechaTxt,
+        entrega: entregaTxt,
+        fechaISO,
+        items: cart,
+      }),
+    });
+
+    if (res.status === 409) {
+      const data = await res.json().catch(() => ({}));
+      showToast(data.error || 'Ya no hay cupo de tortas para esa fecha.');
+      btn.disabled = false;
+      btn.textContent = '💬 Ya transferí — Enviar comprobante por WhatsApp';
+      return;
+    }
+
+    if (!res.ok) {
+      console.error('Error notificando transferencia:', await res.text().catch(() => ''));
+    }
+  } catch (err) {
+    console.error('Error notificando transferencia:', err);
+  }
 
   const waMsg = encodeURIComponent(`Hola LuniBakery! Adjunto comprobante de transferencia. Pedido: ${productosTxt}. Total: ${fmt(total)}. Fecha: ${fechaTxt}. Nombre: ${nombre}. Email: ${email}. Teléfono: ${telefono}${addr}`);
   window.open(`https://wa.me/56952393294?text=${waMsg}`, '_blank');
   closeTransfer();
   showToast('¡Recuerda enviar el comprobante por WhatsApp!');
+  btn.disabled = false;
+  btn.textContent = '💬 Ya transferí — Enviar comprobante por WhatsApp';
 }
 
 // ── MENÚ HAMBURGUESA ──
